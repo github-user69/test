@@ -1,0 +1,23 @@
+The initial part of this writeup using Cloudflare directly was patched. Instead what you can do is use VPNs or Proxies to get the closest server location as listed in this gist. You can test yourself by simply doing something like:
+
+First open your discord.com in your web browser. Inspect Element/Dev tools and head to the Networking tab. Send the user an image such as a 1x1 pixelconvert -size 1x1 xc:white pixel.png 
+
+Look at the "messages" network request for the URL which has the image.
+
+curl -k -I --http1.0 "https://cdn.discordapp.com/attachments/etc/etc/image.png?ex=etc&is=etc&hm=etc&" 
+
+Run that twice, first result will give you a miss, second will give you a hit.
+
+Then start playing with Proxies. Sample command:
+
+curl -k -I --http1.0 --socks5 142.54.239.1:4145 "https://cdn.discordapp.com/attachments/etc/etc/image.png?ex=etc&is=etc&hm=etc&" 
+
+The logic behind this is simple:
+Send a user an image. Get the image URL.
+Get list of valid proxies & map them to their rough locations.
+Use haversine to map rough locations to cloudflare CDN locations.
+Check the image URL against the CDN locations with proxies within distance of each CDN.
+Check for miss or hit cache results.
+
+Ensure that proxies aren't relaying to the same CF-Ray as once you hit an endpoint it would now be cached and future requests would come back as a hit.
+
